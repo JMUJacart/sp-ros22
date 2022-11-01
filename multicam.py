@@ -63,11 +63,17 @@ if __name__ == "__main__":
             usage()
             exit(-1)
 
-    devices = sl.Camera.get_device_list()
-
+    print("about to find devices", flush=True)
+    try:
+        devices = sl.Camera.get_device_list()
+    except:
+        print("Error getting devices", flush=True)
+        exit(-1)
+    
+    print("devices found", flush=True)
     device_number = len(devices)
 
-    print(f"I see {device_number} cameras!")
+    print(f"I see {device_number} cameras!", flush=True)
 
     if device_number == 0:
         print("No Cameras connected!")
@@ -120,6 +126,11 @@ if __name__ == "__main__":
     # Show video feed
     # Get ZED camera information
     camera_info = cam1.get_camera_information()
+    
+    print("------------------------")
+    print(str(camera_info.camera_configuration.camera_resolution.width))
+    print(str(camera_info.camera_configuration.camera_resolution.height))
+    print("------------------------")
 
     # 2D viewer utilities
     display_resolution = sl.Resolution(min(camera_info.camera_resolution.width, 1280), min(camera_info.camera_resolution.height, 720))
@@ -157,17 +168,17 @@ if __name__ == "__main__":
     bodies2 = sl.Objects()
     image1 = sl.Mat()
     image2 = sl.Mat()
-    #viewer = gl.GLViewer()
-    #viewer.init(camera_info.calibration_parameters.left_cam, obj_param.enable_tracking,obj_param.body_format)
+    # viewer = gl.GLViewer()
+    # viewer.init(camera_info.calibration_parameters.left_cam, obj_param.enable_tracking,obj_param.body_format)
 
 
     while True:
         # Grab an image
-        if cam1.grab() == sl.ERROR_CODE.SUCCESS and device_number >= 1:
+        if device_number >= 1 and cam1.grab() == sl.ERROR_CODE.SUCCESS:
             # Retrieve left image
             cam1.retrieve_image(image1, sl.VIEW.LEFT, sl.MEM.CPU, display_resolution)
 
-            #viewer.set_image(image_left_ocv)
+            # viewer.set_image(image_left_ocv)
 
             # Pose Tracking - Object Detection
             cam1.retrieve_objects(bodies1, obj_runtime_param1)
@@ -208,7 +219,7 @@ if __name__ == "__main__":
 
 
 
-    viewer.exit()
+    # viewer.exit()
     # Disable modules and close camera
     cam1.disable_object_detection()
     cam1.disable_positional_tracking()
